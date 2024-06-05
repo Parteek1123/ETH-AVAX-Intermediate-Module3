@@ -1,12 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
-
+// Import the ERC20 standard library
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-
 contract MyToken is ERC20 {
-    constructor() ERC20("MyToken", "MTK") {
+  // Constructor defines initial token properties
+  constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
+    _mint(msg.sender, initialSupply * (10**decimals()));
+  }
 
-    _mint(msg.sender,100*10** decimals());
-    }
+  // Function for the owner to mint new tokens ( onlyOwner modifier can be added for access control)
+  function mint(address to, uint256 amount) public {
+    _mint(to, amount);
+  }
+
+  // Function for burning tokens by the holder
+  function burn(uint256 amount) public {
+    _burn(msg.sender, amount);
+  }
 }
