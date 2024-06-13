@@ -1,21 +1,35 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+
 // Import the ERC20 standard library
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-contract MyToken is ERC20 {
-  // Constructor defines initial token properties
-  constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
-    _mint(msg.sender, initialSupply * (10**decimals()));
-  }
+contract CustomToken is ERC20 {
+    address public owner;
 
-  // Function for the owner to mint new tokens ( onlyOwner modifier can be added for access control)
-  function mint(address to, uint256 amount) public {
-    _mint(to, amount);
-  }
+    // Constructor defines initial token properties
+    constructor(string memory name, string memory symbol, uint256 initialSupply) ERC20(name, symbol) {
+        _mint(msg.sender, initialSupply * (10**uint256(decimals())));
+        owner = msg.sender;
+    }
 
-  // Function for burning tokens by the holder
-  function burn(uint256 amount) public {
-    _burn(msg.sender, amount);
-  }
+    // Function for the owner to mint new tokens
+    function mint(address to, uint256 amount) public {
+        require(msg.sender == owner, "Only the owner can mint tokens");
+        _mint(to, amount);
+    }
+
+    // Function for burning tokens by any user
+    function burn(uint256 amount) public {
+        _burn(msg.sender, amount);
+    }
+
+    // Transfer function to allow users to transfer tokens
+    function transfer(address to, uint256 amount) public override returns (bool) {
+        require(to != address(0), "ERC20: transfer to the zero address");
+        require(balanceOf(msg.sender) >= amount, "ERC20: transfer amount exceeds balance");
+
+        _transfer(msg.sender, to, amount);
+        return true;
+    }
 }
